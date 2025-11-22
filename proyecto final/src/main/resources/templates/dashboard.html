@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Voluntariado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-logout:hover {
+            background: #ff3344;
+        }
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+        .welcome-banner h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-card .icon {
+            font-size: 2rem;
+            float: right;
+        }
+        .section-title {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .activities-list {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .activity-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        .activity-info h4 {
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+        .activity-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        .activity-status {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .status-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-aprobada {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-completada {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+        .btn-primary {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background: #5a6fd6;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Voluntariado ONG</div>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/actividades">Actividades</a>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">Usuario</span>
+            </div>
+            <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="welcome-banner">
+            <h1>¡Bienvenido, <span id="welcomeName">Voluntario</span>!</h1>
+            <p>Gracias por ser parte de nuestra comunidad. Tu ayuda hace la diferencia.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="icon">📋</span>
+                <h3>Actividades Inscritas</h3>
+                <div class="number" id="totalActividades">0</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">⏱️</span>
+                <h3>Horas Voluntariado</h3>
+                <div class="number" id="totalHoras">0</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">✅</span>
+                <h3>Completadas</h3>
+                <div class="number" id="completadas">0</div>
+            </div>
+            <div class="stat-card">
+                <span class="icon">🏆</span>
+                <h3>Certificados</h3>
+                <div class="number" id="certificados">0</div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Mis Inscripciones</h2>
+        <div class="activities-list" id="activitiesList">
+            <div class="empty-state">
+                <p>Aún no te has inscrito en ninguna actividad</p>
+                <a href="/actividades" class="btn-primary">Explorar actividades</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+
+        // Verificar autenticación
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // Mostrar información del usuario
+        if (user.nombre) {
+            document.getElementById('userName').textContent = user.nombre;
+            document.getElementById('welcomeName').textContent = user.nombre.split(' ')[0];
+            document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        }
+
+        // Cargar inscripciones del usuario
+        async function loadInscripciones() {
+            try {
+                const response = await fetch(`${API_URL}/api/inscripciones/mis-inscripciones`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.data && result.data.length > 0) {
+                        renderInscripciones(result.data);
+                        updateStats(result.data);
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando inscripciones:', error);
+            }
+        }
+
+        function renderInscripciones(inscripciones) {
+            const container = document.getElementById('activitiesList');
+            container.innerHTML = inscripciones.map(insc => `
+                <div class="activity-item">
+                    <div class="activity-info">
+                        <h4>${insc.actividadNombre || 'Actividad'}</h4>
+                        <p>Inscrito el: ${new Date(insc.fechaInscripcion).toLocaleDateString()}</p>
+                    </div>
+                    <span class="activity-status status-${insc.estado.toLowerCase()}">${insc.estado}</span>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(inscripciones) {
+            document.getElementById('totalActividades').textContent = inscripciones.length;
+            const completadas = inscripciones.filter(i => i.estado === 'COMPLETADA').length;
+            document.getElementById('completadas').textContent = completadas;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+
+        loadInscripciones();
+    </script>
+</body>
+</html>

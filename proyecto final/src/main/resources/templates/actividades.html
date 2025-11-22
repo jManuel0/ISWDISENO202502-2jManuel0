@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades - Voluntariado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        .btn-nav {
+            padding: 0.6rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: #666;
+        }
+        .filters {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .filters input, .filters select {
+            padding: 0.7rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+        .filters input:focus, .filters select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .activity-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        .activity-image {
+            height: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+        .activity-content {
+            padding: 1.5rem;
+        }
+        .activity-category {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: #e8f0fe;
+            color: #667eea;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        .activity-content h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .activity-content p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+        .activity-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 1rem;
+        }
+        .activity-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .btn-inscribirse {
+            width: 100%;
+            padding: 0.8rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-inscribirse:hover {
+            background: #5a6fd6;
+        }
+        .btn-inscribirse:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+        }
+        .modal-content h3 {
+            margin-bottom: 1rem;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .modal-buttons button {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .btn-confirm {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Voluntariado ONG</div>
+        <div class="nav-links">
+            <a href="/">Inicio</a>
+            <a href="/actividades">Actividades</a>
+            <a href="/dashboard" id="dashboardLink" style="display:none;">Dashboard</a>
+            <a href="/login" id="loginLink" class="btn-nav">Iniciar Sesión</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>Actividades de Voluntariado</h1>
+            <p>Encuentra la actividad perfecta para ti y comienza a hacer la diferencia</p>
+        </div>
+
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="Buscar actividades...">
+            <select id="categoryFilter">
+                <option value="">Todas las categorías</option>
+                <option value="EDUCACION">Educación</option>
+                <option value="SALUD">Salud</option>
+                <option value="MEDIO_AMBIENTE">Medio Ambiente</option>
+                <option value="SOCIAL">Social</option>
+                <option value="CULTURAL">Cultural</option>
+            </select>
+        </div>
+
+        <div class="activities-grid" id="activitiesGrid">
+            <div class="empty-state">
+                <h3>Cargando actividades...</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="inscriptionModal">
+        <div class="modal-content">
+            <h3>Confirmar Inscripción</h3>
+            <p id="modalMessage">¿Deseas inscribirte en esta actividad?</p>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                <button class="btn-confirm" onclick="confirmInscription()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const token = localStorage.getItem('token');
+        let selectedActivityId = null;
+
+        // Mostrar/ocultar enlaces según autenticación
+        if (token) {
+            document.getElementById('loginLink').style.display = 'none';
+            document.getElementById('dashboardLink').style.display = 'inline';
+        }
+
+        async function loadActividades() {
+            try {
+                const response = await fetch(`${API_URL}/api/actividades`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    renderActividades(result.data);
+                } else {
+                    showEmpty('No hay actividades disponibles');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showEmpty('Error al cargar las actividades');
+            }
+        }
+
+        function renderActividades(actividades) {
+            const container = document.getElementById('activitiesGrid');
+
+            if (!actividades || actividades.length === 0) {
+                showEmpty('No hay actividades disponibles');
+                return;
+            }
+
+            const icons = {
+                'EDUCACION': '📚',
+                'SALUD': '🏥',
+                'MEDIO_AMBIENTE': '🌿',
+                'SOCIAL': '🤝',
+                'CULTURAL': '🎭'
+            };
+
+            container.innerHTML = actividades.map(act => `
+                <div class="activity-card">
+                    <div class="activity-image">
+                        ${icons[act.categoria] || '📋'}
+                    </div>
+                    <div class="activity-content">
+                        <span class="activity-category">${act.categoria || 'General'}</span>
+                        <h3>${act.nombre}</h3>
+                        <p>${act.descripcion ? act.descripcion.substring(0, 100) + '...' : 'Sin descripción'}</p>
+                        <div class="activity-meta">
+                            <span>📅 ${act.fechaInicio ? new Date(act.fechaInicio).toLocaleDateString() : 'Por definir'}</span>
+                            <span>📍 ${act.ubicacion || 'Por definir'}</span>
+                            <span>👥 ${act.voluntariosInscritos || 0}/${act.voluntariosRequeridos || '∞'}</span>
+                        </div>
+                        <button class="btn-inscribirse" onclick="inscribirse('${act.id}')" ${!token ? 'disabled' : ''}>
+                            ${token ? 'Inscribirme' : 'Inicia sesión para inscribirte'}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showEmpty(message) {
+            document.getElementById('activitiesGrid').innerHTML = `
+                <div class="empty-state">
+                    <h3>${message}</h3>
+                </div>
+            `;
+        }
+
+        function inscribirse(activityId) {
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+            selectedActivityId = activityId;
+            document.getElementById('inscriptionModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('inscriptionModal').classList.remove('active');
+            selectedActivityId = null;
+        }
+
+        async function confirmInscription() {
+            if (!selectedActivityId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/api/inscripciones`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        actividadId: selectedActivityId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('¡Inscripción exitosa!');
+                    closeModal();
+                    loadActividades();
+                } else {
+                    alert(result.message || 'Error al inscribirse');
+                }
+            } catch (error) {
+                alert('Error de conexión');
+            }
+        }
+
+        // Filtros
+        document.getElementById('searchInput').addEventListener('input', filterActividades);
+        document.getElementById('categoryFilter').addEventListener('change', filterActividades);
+
+        function filterActividades() {
+            // Implementar filtrado local o recargar con parámetros
+            loadActividades();
+        }
+
+        loadActividades();
+    </script>
+</body>
+</html>
