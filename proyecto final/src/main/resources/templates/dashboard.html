@@ -302,10 +302,11 @@
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            globalThis.location.href = '/login';
+            window.location.href = '/login';
         }
 
-        await loadInscripciones();
+        // Ejecutar al cargar
+        loadInscripciones();
     </script>
 </body>
 </html>

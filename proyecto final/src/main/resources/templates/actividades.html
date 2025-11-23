@@ -223,8 +223,12 @@
         <div class="nav-links">
             <a href="/">Inicio</a>
             <a href="/actividades">Actividades</a>
+            <a href="/calendario" id="calendarioLink" style="display:none;">Calendario</a>
             <a href="/dashboard" id="dashboardLink" style="display:none;">Dashboard</a>
-            <a href="/login" id="loginLink" class="btn-nav">Iniciar Sesión</a>
+            <a href="/perfil" id="perfilLink" style="display:none;">Mi Perfil</a>
+            <a href="/admin" id="adminLink" style="display:none;background:#667eea;color:white;padding:0.5rem 1rem;border-radius:8px;">Admin</a>
+            <a href="/login" id="loginLink" class="btn-nav">Iniciar Sesion</a>
+            <button id="logoutBtn" style="display:none;padding:0.5rem 1rem;background:#ff4757;color:white;border:none;border-radius:8px;cursor:pointer;" onclick="logout()">Cerrar Sesion</button>
         </div>
     </nav>
 
@@ -270,9 +274,22 @@
         let selectedActivityId = null;
 
         // Mostrar/ocultar enlaces según autenticación
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (token) {
             document.getElementById('loginLink').style.display = 'none';
             document.getElementById('dashboardLink').style.display = 'inline';
+            document.getElementById('calendarioLink').style.display = 'inline';
+            document.getElementById('perfilLink').style.display = 'inline';
+            document.getElementById('logoutBtn').style.display = 'inline-block';
+            if (user.rol === 'ADMINISTRADOR' || user.rol === 'COORDINADOR') {
+                document.getElementById('adminLink').style.display = 'inline-block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            globalThis.location.href = '/login';
         }
 
         async function loadActividades() {
@@ -389,7 +406,7 @@
             loadActividades();
         }
 
-        await loadActividades();
+        loadActividades();
     </script>
 </body>
 </html>
