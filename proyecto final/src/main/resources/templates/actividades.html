@@ -324,26 +324,28 @@
                 'CULTURAL': '🎭'
             };
 
-            container.innerHTML = actividades.map(act => `
+            container.innerHTML = actividades.map(act => {
+                const cat = act.categoriasActividad?.[0] || act.categoria || 'General';
+                return `
                 <div class="activity-card">
                     <div class="activity-image">
-                        ${icons[act.categoria] || '📋'}
+                        ${icons[cat] || '📋'}
                     </div>
                     <div class="activity-content">
-                        <span class="activity-category">${act.categoria || 'General'}</span>
-                        <h3>${act.nombre}</h3>
+                        <span class="activity-category">${cat}</span>
+                        <h3>${act.titulo || act.nombre || 'Sin título'}</h3>
                         <p>${act.descripcion ? act.descripcion.substring(0, 100) + '...' : 'Sin descripción'}</p>
                         <div class="activity-meta">
-                            <span>📅 ${act.fechaInicio ? new Date(act.fechaInicio).toLocaleDateString() : 'Por definir'}</span>
-                            <span>📍 ${act.ubicacion || 'Por definir'}</span>
-                            <span>👥 ${act.voluntariosInscritos || 0}/${act.voluntariosRequeridos || '∞'}</span>
+                            <span>📅 ${act.fecha ? new Date(act.fecha).toLocaleDateString() : 'Por definir'}</span>
+                            <span>📍 ${act.lugar || act.ubicacion || 'Por definir'}</span>
+                            <span>👥 ${act.inscritos || 0}/${act.cupos || '∞'}</span>
                         </div>
                         <button class="btn-inscribirse" onclick="inscribirse('${act.id}')" ${token ? '' : 'disabled'}>
                             ${token ? 'Inscribirme' : 'Inicia sesión para inscribirte'}
                         </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function showEmpty(message) {
@@ -372,15 +374,11 @@
             if (!selectedActivityId) return;
 
             try {
-                const response = await fetch(`${API_URL}/api/inscripciones`, {
+                const response = await fetch(`${API_URL}/api/inscripciones/actividad/${selectedActivityId}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        actividadId: selectedActivityId
-                    })
+                    }
                 });
 
                 const result = await response.json();
