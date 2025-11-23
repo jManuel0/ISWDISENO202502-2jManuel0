@@ -30,4 +30,24 @@ public class WebController {
     public String actividades() {
         return "actividades";
     }
+
+    @GetMapping("/perfil")
+    public String perfil() {
+        return "perfil";
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "admin";
+    }
+
+    @GetMapping("/calendario")
+    public String calendario() {
+        return "calendario";
+    }
+
+    @GetMapping("/recuperar-password")
+    public String recuperarPassword() {
+        return "recuperar-password";
+    }
 }

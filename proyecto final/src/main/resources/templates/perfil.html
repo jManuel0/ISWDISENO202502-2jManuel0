@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Voluntariado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+        }
+        body.dark-mode {
+            background: #1a1a2e;
+            color: #eee;
+        }
+        nav {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        body.dark-mode nav {
+            background: #16213e;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        body.dark-mode .nav-links a {
+            color: #ddd;
+        }
+        .nav-links a:hover {
+            color: #667eea;
+        }
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .main-content {
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #667eea;
+            margin: 0 auto 1rem;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        .profile-name {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .profile-role {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        .dark-mode-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        .profile-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        body.dark-mode .profile-section {
+            background: #16213e;
+        }
+        .section-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        body.dark-mode .section-title {
+            color: #eee;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #666;
+            font-weight: 500;
+        }
+        body.dark-mode .form-group label {
+            color: #bbb;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        body.dark-mode .form-group input,
+        body.dark-mode .form-group textarea {
+            background: #0f3460;
+            border-color: #1a1a2e;
+            color: #eee;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .btn {
+            padding: 0.9rem 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            background: #5a6fd6;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .skill-tag {
+            background: #e8f0fe;
+            color: #667eea;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        body.dark-mode .skill-tag {
+            background: #0f3460;
+        }
+        .skill-tag button {
+            background: none;
+            border: none;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .add-skill {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .add-skill input {
+            flex: 1;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        body.dark-mode .stat-item {
+            background: #0f3460;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        body.dark-mode .stat-label {
+            color: #bbb;
+        }
+        .success-message, .error-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+        }
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .certificates-list {
+            margin-top: 1rem;
+        }
+        .certificate-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+        }
+        body.dark-mode .certificate-item {
+            background: #0f3460;
+        }
+        .btn-download {
+            padding: 0.5rem 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">Voluntariado ONG</div>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/actividades">Actividades</a>
+            <a href="/perfil">Mi Perfil</a>
+            <button class="btn-logout" onclick="logout()">Cerrar sesion</button>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="profile-header">
+            <button class="dark-mode-toggle" onclick="toggleDarkMode()" title="Cambiar tema">🌙</button>
+            <div class="profile-avatar" id="profileAvatar">U</div>
+            <h1 class="profile-name" id="profileName">Usuario</h1>
+            <p class="profile-role" id="profileRole">Voluntario</p>
+        </div>
+
+        <div class="success-message" id="successMessage"></div>
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="profile-section">
+            <h2 class="section-title">📊 Mis Estadisticas</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="statActividades">0</div>
+                    <div class="stat-label">Actividades</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="statHoras">0</div>
+                    <div class="stat-label">Horas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="statCertificados">0</div>
+                    <div class="stat-label">Certificados</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">👤 Informacion Personal</h2>
+            <form id="profileForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo</label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="correo">Correo electronico</label>
+                        <input type="email" id="correo" name="correo" readonly>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telefono">Telefono</label>
+                        <input type="tel" id="telefono" name="telefono">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaRegistro">Miembro desde</label>
+                        <input type="text" id="fechaRegistro" readonly>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Guardar cambios</button>
+            </form>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">🎯 Mis Habilidades</h2>
+            <div class="skills-container" id="skillsContainer">
+                <!-- Skills se cargan dinamicamente -->
+            </div>
+            <div class="add-skill">
+                <input type="text" id="newSkill" placeholder="Nueva habilidad...">
+                <button class="btn" onclick="addSkill()">Agregar</button>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">📜 Mis Certificados</h2>
+            <div class="certificates-list" id="certificatesList">
+                <p style="color: #666;">No tienes certificados aun. Completa actividades para obtenerlos.</p>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h2 class="section-title">🔒 Cambiar Contrasena</h2>
+            <form id="passwordForm">
+                <div class="form-group">
+                    <label for="currentPassword">Contrasena actual</label>
+                    <input type="password" id="currentPassword" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="newPassword">Nueva contrasena</label>
+                        <input type="password" id="newPassword" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar contrasena</label>
+                        <input type="password" id="confirmPassword" required minlength="6">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-secondary">Cambiar contrasena</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = globalThis.location.origin;
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        let userSkills = [];
+
+        if (!token) {
+            globalThis.location.href = '/login';
+        }
+
+        // Cargar datos del usuario
+        function loadUserData() {
+            if (user.nombre) {
+                document.getElementById('profileName').textContent = user.nombre;
+                document.getElementById('profileAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+                document.getElementById('nombre').value = user.nombre;
+            }
+            if (user.correo) {
+                document.getElementById('correo').value = user.correo;
+            }
+            if (user.telefono) {
+                document.getElementById('telefono').value = user.telefono;
+            }
+            if (user.rol) {
+                document.getElementById('profileRole').textContent = user.rol;
+            }
+            if (user.habilidades) {
+                userSkills = user.habilidades;
+                renderSkills();
+            }
+            if (user.fechaRegistro) {
+                document.getElementById('fechaRegistro').value = new Date(user.fechaRegistro).toLocaleDateString();
+            }
+        }
+
+        function renderSkills() {
+            const container = document.getElementById('skillsContainer');
+            if (userSkills.length === 0) {
+                container.innerHTML = '<p style="color: #666;">No has agregado habilidades aun</p>';
+                return;
+            }
+            container.innerHTML = userSkills.map((skill, index) => `
+                <span class="skill-tag">
+                    ${skill}
+                    <button onclick="removeSkill(${index})">&times;</button>
+                </span>
+            `).join('');
+        }
+
+        function addSkill() {
+            const input = document.getElementById('newSkill');
+            const skill = input.value.trim();
+            if (skill && !userSkills.includes(skill)) {
+                userSkills.push(skill);
+                renderSkills();
+                input.value = '';
+                saveProfile();
+            }
+        }
+
+        function removeSkill(index) {
+            userSkills.splice(index, 1);
+            renderSkills();
+            saveProfile();
+        }
+
+        async function saveProfile() {
+            const data = {
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                habilidades: userSkills
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/api/usuarios/perfil`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    // Actualizar localStorage
+                    const updatedUser = { ...user, ...data };
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+                    showSuccess('Perfil actualizado correctamente');
+                } else {
+                    showError(result.message || 'Error al actualizar');
+                }
+            } catch (error) {
+                showError('Error de conexion');
+            }
+        }
+
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await saveProfile();
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPass = document.getElementById('newPassword').value;
+            const confirmPass = document.getElementById('confirmPassword').value;
+
+            if (newPass !== confirmPass) {
+                showError('Las contrasenas no coinciden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/usuarios/cambiar-password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        passwordActual: document.getElementById('currentPassword').value,
+                        passwordNuevo: newPass
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showSuccess('Contrasena cambiada correctamente');
+                    document.getElementById('passwordForm').reset();
+                } else {
+                    showError(result.message || 'Error al cambiar contrasena');
+                }
+            } catch (error) {
+                showError('Error de conexion');
+            }
+        });
+
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_URL}/api/inscripciones/mis-inscripciones`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success && result.data) {
+                    document.getElementById('statActividades').textContent = result.data.length;
+                    const completadas = result.data.filter(i => i.estado === 'COMPLETADA').length;
+                    document.getElementById('statHoras').textContent = completadas * 4; // Estimado
+                }
+            } catch (error) {
+                console.error('Error cargando estadisticas');
+            }
+        }
+
+        async function loadCertificados() {
+            try {
+                const response = await fetch(`${API_URL}/api/certificados/mis-certificados`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const result = await response.json();
+                if (result.success && result.data && result.data.length > 0) {
+                    document.getElementById('statCertificados').textContent = result.data.length;
+                    renderCertificados(result.data);
+                }
+            } catch (error) {
+                console.error('Error cargando certificados');
+            }
+        }
+
+        function renderCertificados(certificados) {
+            const container = document.getElementById('certificatesList');
+            container.innerHTML = certificados.map(cert => `
+                <div class="certificate-item">
+                    <div>
+                        <strong>${cert.actividadNombre || 'Certificado'}</strong>
+                        <p style="font-size: 0.9rem; color: #666;">
+                            Emitido: ${new Date(cert.fechaEmision).toLocaleDateString()}
+                        </p>
+                    </div>
+                    <button class="btn-download" onclick="downloadCertificate('${cert.id}')">
+                        Descargar PDF
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        async function downloadCertificate(certId) {
+            try {
+                const response = await fetch(`${API_URL}/api/certificados/${certId}/pdf`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `certificado_${certId}.pdf`;
+                    a.click();
+                }
+            } catch (error) {
+                showError('Error al descargar certificado');
+            }
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            document.querySelector('.dark-mode-toggle').textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // Cargar preferencia de tema
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.dark-mode-toggle').textContent = '☀️';
+        }
+
+        function showSuccess(message) {
+            const el = document.getElementById('successMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function showError(message) {
+            const el = document.getElementById('errorMessage');
+            el.textContent = message;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            globalThis.location.href = '/login';
+        }
+
+        loadUserData();
+        loadStats();
+        loadCertificados();
+    </script>
+</body>
+</html>

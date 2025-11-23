@@ -42,7 +42,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         // Páginas públicas
-                        .requestMatchers("/", "/login", "/registro", "/actividades", "/dashboard").permitAll()
+                        .requestMatchers("/", "/login", "/registro", "/actividades", "/dashboard", "/perfil", "/admin", "/calendario", "/recuperar-password").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 
                         // Endpoints públicos

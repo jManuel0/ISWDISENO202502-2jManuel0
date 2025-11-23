@@ -151,7 +151,7 @@
     </div>
 
     <script>
-        const API_URL = window.location.origin;
+        const API_URL = globalThis.location.origin;
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -187,7 +187,7 @@
                     successMessage.textContent = '¡Inicio de sesión exitoso! Redirigiendo...';
                     successMessage.style.display = 'block';
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        globalThis.location.href = '/dashboard';
                     }, 1500);
                 } else {
                     errorMessage.textContent = result.message || 'Error al iniciar sesión';

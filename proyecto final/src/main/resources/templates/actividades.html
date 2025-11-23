@@ -265,7 +265,7 @@
     </div>
 
     <script>
-        const API_URL = window.location.origin;
+        const API_URL = globalThis.location.origin;
         const token = localStorage.getItem('token');
         let selectedActivityId = null;
 
@@ -321,7 +321,7 @@
                             <span>📍 ${act.ubicacion || 'Por definir'}</span>
                             <span>👥 ${act.voluntariosInscritos || 0}/${act.voluntariosRequeridos || '∞'}</span>
                         </div>
-                        <button class="btn-inscribirse" onclick="inscribirse('${act.id}')" ${!token ? 'disabled' : ''}>
+                        <button class="btn-inscribirse" onclick="inscribirse('${act.id}')" ${token ? '' : 'disabled'}>
                             ${token ? 'Inscribirme' : 'Inicia sesión para inscribirte'}
                         </button>
                     </div>
@@ -339,7 +339,7 @@
 
         function inscribirse(activityId) {
             if (!token) {
-                window.location.href = '/login';
+                globalThis.location.href = '/login';
                 return;
             }
             selectedActivityId = activityId;
@@ -389,7 +389,7 @@
             loadActividades();
         }
 
-        loadActividades();
+        await loadActividades();
     </script>
 </body>
 </html>

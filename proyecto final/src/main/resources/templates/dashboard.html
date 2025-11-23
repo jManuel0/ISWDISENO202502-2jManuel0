@@ -234,14 +234,14 @@
     </div>
 
     <script>
-        const API_URL = window.location.origin;
+        const API_URL = globalThis.location.origin;
 
         // Verificar autenticación
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user') || '{}');
 
         if (!token) {
-            window.location.href = '/login';
+            globalThis.location.href = '/login';
         }
 
         // Mostrar información del usuario
@@ -294,10 +294,10 @@
         function logout() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = '/login';
+            globalThis.location.href = '/login';
         }
 
-        loadInscripciones();
+        await loadInscripciones();
     </script>
 </body>
 </html>

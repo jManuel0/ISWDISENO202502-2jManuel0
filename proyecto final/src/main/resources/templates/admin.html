@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administracion - Voluntariado</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f6fa; min-height: 100vh; }
+        body.dark-mode { background: #1a1a2e; color: #eee; }
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; position: fixed; height: 100vh; }
+        body.dark-mode .sidebar { background: linear-gradient(180deg, #16213e 0%, #0f3460 100%); }
+        .sidebar-header { text-align: center; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2); margin-bottom: 1.5rem; }
+        .sidebar-menu { list-style: none; }
+        .sidebar-menu li { margin-bottom: 0.5rem; }
+        .sidebar-menu a { display: flex; align-items: center; gap: 0.8rem; padding: 0.9rem 1rem; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 10px; transition: all 0.3s; }
+        .sidebar-menu a:hover, .sidebar-menu a.active { background: rgba(255,255,255,0.2); color: white; }
+        .main-content { flex: 1; margin-left: 260px; padding: 2rem; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; background: white; padding: 1rem 1.5rem; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        body.dark-mode .top-bar { background: #16213e; }
+        .top-bar h1 { font-size: 1.5rem; color: #333; }
+        body.dark-mode .top-bar h1 { color: #eee; }
+        .btn { padding: 0.7rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-danger { background: #ff4757; color: white; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 1rem; }
+        body.dark-mode .stat-card { background: #16213e; }
+        .stat-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: #e8f0fe; }
+        .stat-info h3 { font-size: 1.8rem; color: #333; }
+        body.dark-mode .stat-info h3 { color: #eee; }
+        .stat-info p { color: #666; font-size: 0.9rem; }
+        .data-section { background: white; border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        body.dark-mode .data-section { background: #16213e; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .section-header h2 { font-size: 1.2rem; color: #333; }
+        body.dark-mode .section-header h2 { color: #eee; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+        body.dark-mode .data-table th, body.dark-mode .data-table td { border-color: #0f3460; }
+        .data-table th { color: #666; font-weight: 600; font-size: 0.85rem; }
+        body.dark-mode .data-table th { color: #bbb; }
+        .data-table td { color: #333; }
+        body.dark-mode .data-table td { color: #eee; }
+        .status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500; }
+        .status-activo { background: #d4edda; color: #155724; }
+        .status-pendiente { background: #fff3cd; color: #856404; }
+        .role-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; }
+        .role-admin { background: #e8f0fe; color: #667eea; }
+        .role-coordinador { background: #fff3cd; color: #856404; }
+        .role-voluntario { background: #d4edda; color: #155724; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .btn-icon { width: 35px; height: 35px; border: none; border-radius: 8px; cursor: pointer; }
+        .btn-edit { background: #e8f0fe; color: #667eea; }
+        .btn-delete { background: #f8d7da; color: #dc3545; }
+        .search-box { padding: 0.7rem 1rem; border: 2px solid #e0e0e0; border-radius: 8px; width: 250px; }
+        body.dark-mode .search-box { background: #0f3460; border-color: #1a1a2e; color: #eee; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 2rem; border-radius: 15px; width: 100%; max-width: 500px; }
+        body.dark-mode .modal-content { background: #16213e; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; }
+        body.dark-mode .form-group input, body.dark-mode .form-group select { background: #0f3460; border-color: #1a1a2e; color: #eee; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header"><h2>Admin Panel</h2></div>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active" data-tab="dashboard">📊 Dashboard</a></li>
+                <li><a href="#" data-tab="usuarios">👥 Usuarios</a></li>
+                <li><a href="#" data-tab="actividades">📋 Actividades</a></li>
+                <li><a href="#" data-tab="inscripciones">✍️ Inscripciones</a></li>
+                <li><a href="#" data-tab="organizaciones">🏢 Organizaciones</a></li>
+                <li><a href="/dashboard">🏠 Volver</a></li>
+            </ul>
+        </aside>
+        <main class="main-content">
+            <div class="top-bar">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div style="display:flex;gap:1rem;">
+                    <button class="btn btn-primary" onclick="toggleDarkMode()">🌙</button>
+                    <button class="btn btn-danger" onclick="logout()">Cerrar Sesion</button>
+                </div>
+            </div>
+            <div id="dashboard-tab" class="tab-content active">
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><h3 id="totalUsuarios">0</h3><p>Usuarios</p></div></div>
+                    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3 id="totalActividades">0</h3><p>Actividades</p></div></div>
+                    <div class="stat-card"><div class="stat-icon">✍️</div><div class="stat-info"><h3 id="totalInscripciones">0</h3><p>Inscripciones</p></div></div>
+                    <div class="stat-card"><div class="stat-icon">🏢</div><div class="stat-info"><h3 id="totalOrgs">0</h3><p>Organizaciones</p></div></div>
+                </div>
+            </div>
+            <div id="usuarios-tab" class="tab-content">
+                <div class="data-section">
+                    <div class="section-header"><h2>Usuarios</h2><input type="text" class="search-box" placeholder="Buscar..." id="searchUsuarios"></div>
+                    <table class="data-table"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="usuariosTable"></tbody></table>
+                </div>
+            </div>
+            <div id="actividades-tab" class="tab-content">
+                <div class="data-section">
+                    <div class="section-header"><h2>Actividades</h2><button class="btn btn-primary" onclick="openModal('activityModal')">+ Nueva</button></div>
+                    <table class="data-table"><thead><tr><th>Nombre</th><th>Categoria</th><th>Fecha</th><th>Inscritos</th><th>Acciones</th></tr></thead><tbody id="actividadesTable"></tbody></table>
+                </div>
+            </div>
+            <div id="inscripciones-tab" class="tab-content">
+                <div class="data-section">
+                    <div class="section-header"><h2>Inscripciones</h2></div>
+                    <table class="data-table"><thead><tr><th>Voluntario</th><th>Actividad</th><th>Fecha</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="inscripcionesTable"></tbody></table>
+                </div>
+            </div>
+            <div id="organizaciones-tab" class="tab-content">
+                <div class="data-section">
+                    <div class="section-header"><h2>Organizaciones</h2></div>
+                    <table class="data-table"><thead><tr><th>Nombre</th><th>Tipo</th><th>Contacto</th><th>Acciones</th></tr></thead><tbody id="orgsTable"></tbody></table>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal" id="activityModal">
+        <div class="modal-content">
+            <h3>Nueva Actividad</h3>
+            <form id="activityForm">
+                <div class="form-group"><label>Nombre</label><input type="text" name="nombre" required></div>
+                <div class="form-group"><label>Descripcion</label><textarea name="descripcion" rows="3"></textarea></div>
+                <div class="form-group"><label>Categoria</label><select name="categoria"><option value="EDUCACION">Educacion</option><option value="SALUD">Salud</option><option value="MEDIO_AMBIENTE">Medio Ambiente</option><option value="SOCIAL">Social</option></select></div>
+                <div class="form-group"><label>Fecha Inicio</label><input type="datetime-local" name="fechaInicio" required></div>
+                <div class="form-group"><label>Ubicacion</label><input type="text" name="ubicacion"></div>
+                <div class="form-group"><label>Voluntarios Requeridos</label><input type="number" name="voluntariosRequeridos" min="1"></div>
+                <button type="submit" class="btn btn-primary" style="width:100%">Crear</button>
+                <button type="button" class="btn" style="width:100%;margin-top:0.5rem" onclick="closeModal('activityModal')">Cancelar</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        const API_URL = globalThis.location.origin;
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token) globalThis.location.href = '/login';
+        if (user.rol !== 'ADMINISTRADOR' && user.rol !== 'COORDINADOR') { alert('Sin permisos'); globalThis.location.href = '/dashboard'; }
+
+        document.querySelectorAll('.sidebar-menu a[data-tab]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const tab = e.currentTarget.dataset.tab;
+                document.querySelectorAll('.sidebar-menu a').forEach(l => l.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.getElementById(`${tab}-tab`).classList.add('active');
+                document.getElementById('pageTitle').textContent = e.currentTarget.textContent.trim();
+                loadTabData(tab);
+            });
+        });
+
+        function loadTabData(tab) {
+            if (tab === 'dashboard') loadStats();
+            else if (tab === 'usuarios') loadUsuarios();
+            else if (tab === 'actividades') loadActividades();
+            else if (tab === 'inscripciones') loadInscripciones();
+            else if (tab === 'organizaciones') loadOrganizaciones();
+        }
+
+        async function loadStats() {
+            try {
+                const [usuarios, actividades] = await Promise.all([
+                    fetch(`${API_URL}/api/admin/usuarios`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                    fetch(`${API_URL}/api/actividades`)
+                ]);
+                if (usuarios.ok) { const d = await usuarios.json(); document.getElementById('totalUsuarios').textContent = d.data?.length || 0; }
+                if (actividades.ok) { const d = await actividades.json(); document.getElementById('totalActividades').textContent = d.data?.length || 0; }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadUsuarios() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/usuarios`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const result = await res.json();
+                if (result.success && result.data) {
+                    document.getElementById('usuariosTable').innerHTML = result.data.map(u => `<tr><td>${u.nombre}</td><td>${u.correo}</td><td><span class="role-badge role-${u.rol?.toLowerCase()}">${u.rol}</span></td><td><span class="status-badge status-activo">Activo</span></td><td><button class="btn-icon btn-edit">✏️</button></td></tr>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadActividades() {
+            try {
+                const res = await fetch(`${API_URL}/api/actividades`);
+                const result = await res.json();
+                if (result.success && result.data) {
+                    document.getElementById('actividadesTable').innerHTML = result.data.map(a => `<tr><td>${a.nombre}</td><td>${a.categoria || 'General'}</td><td>${a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '-'}</td><td>${a.voluntariosInscritos || 0}/${a.voluntariosRequeridos || '∞'}</td><td><button class="btn-icon btn-edit">✏️</button><button class="btn-icon btn-delete" onclick="deleteActivity('${a.id}')">🗑️</button></td></tr>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadInscripciones() {
+            try {
+                const res = await fetch(`${API_URL}/api/admin/inscripciones`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const result = await res.json();
+                if (result.success && result.data) {
+                    document.getElementById('inscripcionesTable').innerHTML = result.data.map(i => `<tr><td>${i.voluntarioNombre || 'Usuario'}</td><td>${i.actividadNombre || 'Actividad'}</td><td>${new Date(i.fechaInscripcion).toLocaleDateString()}</td><td><span class="status-badge status-${i.estado?.toLowerCase()}">${i.estado}</span></td><td>${i.estado === 'PENDIENTE' ? `<button class="btn-icon btn-edit" onclick="aprobar('${i.id}')">✅</button>` : ''}</td></tr>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadOrganizaciones() {
+            try {
+                const res = await fetch(`${API_URL}/api/organizaciones`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const result = await res.json();
+                if (result.success && result.data) {
+                    document.getElementById('orgsTable').innerHTML = result.data.map(o => `<tr><td>${o.nombre}</td><td>${o.tipo || 'ONG'}</td><td>${o.email || '-'}</td><td><button class="btn-icon btn-edit">✏️</button></td></tr>`).join('');
+                } else { document.getElementById('orgsTable').innerHTML = '<tr><td colspan="4">No hay organizaciones</td></tr>'; }
+            } catch (e) { document.getElementById('orgsTable').innerHTML = '<tr><td colspan="4">No hay organizaciones</td></tr>'; }
+        }
+
+        async function aprobar(id) {
+            await fetch(`${API_URL}/api/inscripciones/aprobar/${id}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
+            loadInscripciones();
+        }
+
+        async function deleteActivity(id) {
+            if (!confirm('Eliminar actividad?')) return;
+            await fetch(`${API_URL}/api/actividades/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            loadActividades();
+        }
+
+        document.getElementById('activityForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            await fetch(`${API_URL}/api/actividades`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(data) });
+            closeModal('activityModal');
+            loadActividades();
+            e.target.reset();
+        });
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function toggleDarkMode() { document.body.classList.toggle('dark-mode'); localStorage.setItem('darkMode', document.body.classList.contains('dark-mode')); }
+        if (localStorage.getItem('darkMode') === 'true') document.body.classList.add('dark-mode');
+        function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); globalThis.location.href = '/login'; }
+        loadStats();
+    </script>
+</body>
+</html>

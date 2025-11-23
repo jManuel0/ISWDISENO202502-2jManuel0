@@ -173,7 +173,7 @@
     </div>
 
     <script>
-        const API_URL = window.location.origin;
+        const API_URL = globalThis.location.origin;
 
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -215,7 +215,7 @@
                     successMessage.textContent = '¡Cuenta creada exitosamente! Redirigiendo...';
                     successMessage.style.display = 'block';
                     setTimeout(() => {
-                        window.location.href = '/dashboard';
+                        globalThis.location.href = '/dashboard';
                     }, 1500);
                 } else {
                     errorMessage.textContent = result.message || 'Error al crear la cuenta';
