@@ -187,11 +187,14 @@
         <div class="nav-links">
             <a href="/dashboard">Dashboard</a>
             <a href="/actividades">Actividades</a>
+            <a href="/calendario">Calendario</a>
+            <a href="/perfil">Mi Perfil</a>
+            <a href="/admin" id="adminLink" style="display:none;background:#667eea;color:white;padding:0.5rem 1rem;border-radius:8px;">Admin</a>
             <div class="user-info">
                 <div class="user-avatar" id="userAvatar">U</div>
                 <span id="userName">Usuario</span>
             </div>
-            <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+            <button class="btn-logout" onclick="logout()">Cerrar sesion</button>
         </div>
     </nav>
 
@@ -249,6 +252,11 @@
             document.getElementById('userName').textContent = user.nombre;
             document.getElementById('welcomeName').textContent = user.nombre.split(' ')[0];
             document.getElementById('userAvatar').textContent = user.nombre.charAt(0).toUpperCase();
+        }
+
+        // Mostrar enlace de admin si es ADMINISTRADOR o COORDINADOR
+        if (user.rol === 'ADMINISTRADOR' || user.rol === 'COORDINADOR') {
+            document.getElementById('adminLink').style.display = 'inline-block';
         }
 
         // Cargar inscripciones del usuario
