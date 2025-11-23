@@ -65,9 +65,28 @@
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 8px; }
         body.dark-mode .form-group input, body.dark-mode .form-group select { background: #0f3460; border-color: #1a1a2e; color: #eee; }
+        /* Loader styles */
+        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .loader-overlay.hidden { display: none; }
+        .loader { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { color: white; margin-top: 1rem; font-size: 1.1rem; }
+        .loader-container { display: flex; flex-direction: column; align-items: center; }
+        .table-loader { display: flex; justify-content: center; padding: 2rem; }
+        .table-loader .mini-loader { width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-loading { position: relative; color: transparent !important; }
+        .btn-loading::after { content: ''; position: absolute; width: 20px; height: 20px; top: 50%; left: 50%; margin-left: -10px; margin-top: -10px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; }
     </style>
 </head>
 <body>
+    <!-- Loader overlay -->
+    <div id="loaderOverlay" class="loader-overlay hidden">
+        <div class="loader-container">
+            <div class="loader"></div>
+            <p class="loader-text" id="loaderText">Cargando...</p>
+        </div>
+    </div>
     <div class="admin-layout">
         <aside class="sidebar">
             <div class="sidebar-header"><h2>Admin Panel</h2></div>
@@ -145,6 +164,18 @@
         if (!token) globalThis.location.href = '/login';
         if (user.rol !== 'ADMINISTRADOR' && user.rol !== 'COORDINADOR') { alert('Sin permisos'); globalThis.location.href = '/dashboard'; }
 
+        // Funciones de loader
+        function showLoader(text = 'Cargando...') {
+            document.getElementById('loaderText').textContent = text;
+            document.getElementById('loaderOverlay').classList.remove('hidden');
+        }
+        function hideLoader() {
+            document.getElementById('loaderOverlay').classList.add('hidden');
+        }
+        function showTableLoader(tableId) {
+            document.getElementById(tableId).innerHTML = '<tr><td colspan="5" class="table-loader"><div class="mini-loader"></div></td></tr>';
+        }
+
         document.querySelectorAll('.sidebar-menu a[data-tab]').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -188,13 +219,19 @@
         }
 
         async function loadActividades() {
+            showTableLoader('actividadesTable');
             try {
                 const res = await fetch(`${API_URL}/api/actividades`);
                 const result = await res.json();
                 if (result.success && result.data) {
                     document.getElementById('actividadesTable').innerHTML = result.data.map(a => `<tr><td>${a.titulo || a.nombre || 'Sin titulo'}</td><td>${a.categoriasActividad?.[0] || a.categoria || 'General'}</td><td>${a.fecha ? new Date(a.fecha).toLocaleDateString() : (a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '-')}</td><td>${a.inscritos || 0}/${a.cupos || '∞'}</td><td><button class="btn-icon btn-edit">✏️</button><button class="btn-icon btn-delete" onclick="deleteActivity('${a.id}')">🗑️</button></td></tr>`).join('');
+                } else {
+                    document.getElementById('actividadesTable').innerHTML = '<tr><td colspan="5">No hay actividades</td></tr>';
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('actividadesTable').innerHTML = '<tr><td colspan="5">Error al cargar</td></tr>';
+            }
         }
 
         async function loadInscripciones() {
@@ -230,14 +267,19 @@
 
         document.getElementById('activityForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('btn-loading');
+            showLoader('Creando actividad...');
+
             const formData = new FormData(e.target);
             const data = {
                 titulo: formData.get('titulo'),
                 descripcion: formData.get('descripcion'),
                 fecha: formData.get('fecha'),
                 lugar: formData.get('lugar'),
-                cupos: parseInt(formData.get('cupos')),
-                horasVoluntariado: parseInt(formData.get('horasVoluntariado') || 4),
+                cupos: Number.parseInt(formData.get('cupos')),
+                horasVoluntariado: Number.parseInt(formData.get('horasVoluntariado') || 4),
                 categoriasActividad: [formData.get('categoriasActividad')]
             };
             try {
@@ -247,6 +289,7 @@
                     body: JSON.stringify(data)
                 });
                 const result = await res.json();
+                hideLoader();
                 if (result.success) {
                     alert('Actividad creada exitosamente');
                     closeModal('activityModal');
@@ -256,7 +299,11 @@
                     alert('Error: ' + (result.message || 'No se pudo crear la actividad'));
                 }
             } catch (err) {
-                alert('Error de conexion');
+                hideLoader();
+                alert('Error de conexion. El servidor puede estar iniciando, intenta de nuevo en unos segundos.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('btn-loading');
             }
         });
 
