@@ -239,7 +239,7 @@
                 const res = await fetch(`${API_URL}/api/admin/inscripciones`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const result = await res.json();
                 if (result.success && result.data) {
-                    document.getElementById('inscripcionesTable').innerHTML = result.data.map(i => `<tr><td>${i.voluntarioNombre || 'Usuario'}</td><td>${i.actividadNombre || 'Actividad'}</td><td>${new Date(i.fechaInscripcion).toLocaleDateString()}</td><td><span class="status-badge status-${i.estado?.toLowerCase()}">${i.estado}</span></td><td>${i.estado === 'PENDIENTE' ? `<button class="btn-icon btn-edit" onclick="aprobar('${i.id}')">✅</button>` : ''}</td></tr>`).join('');
+                    document.getElementById('inscripcionesTable').innerHTML = result.data.map(i => `<tr><td>${i.usuarioNombre || 'Usuario'}</td><td>${i.actividadTitulo || 'Actividad'}</td><td>${new Date(i.fechaInscripcion).toLocaleDateString()}</td><td><span class="status-badge status-${i.estado?.toLowerCase()}">${i.estado}</span></td><td>${i.estado === 'PENDIENTE' ? `<button class="btn-icon btn-edit" onclick="aprobar('${i.id}')">✅</button>` : ''}</td></tr>`).join('');
                 }
             } catch (e) { console.error(e); }
         }
@@ -255,7 +255,7 @@
         }
 
         async function aprobar(id) {
-            await fetch(`${API_URL}/api/inscripciones/aprobar/${id}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
+            await fetch(`${API_URL}/api/inscripciones/${id}/aprobar`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${token}` } });
             loadInscripciones();
         }
 

@@ -2,9 +2,13 @@ package com.voluntariado.plataforma.controller;
 
 import com.voluntariado.plataforma.dto.ApiResponse;
 import com.voluntariado.plataforma.dto.EstadisticasDTO;
+import com.voluntariado.plataforma.dto.InscripcionDTO;
+import com.voluntariado.plataforma.dto.UsuarioDTO;
 import com.voluntariado.plataforma.model.AuditoriaLog;
 import com.voluntariado.plataforma.service.AuditoriaService;
 import com.voluntariado.plataforma.service.EstadisticasService;
+import com.voluntariado.plataforma.service.InscripcionService;
+import com.voluntariado.plataforma.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,13 +24,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMINISTRADOR')")
-@Tag(name = "Administración", description = "Funcionalidades exclusivas de administrador")
+@PreAuthorize("hasAnyRole('ADMINISTRADOR', 'COORDINADOR')")
+@Tag(name = "Administración", description = "Funcionalidades de administrador y coordinador")
 @SecurityRequirement(name = "bearerAuth")
 public class AdminController {
 
     private final EstadisticasService estadisticasService;
     private final AuditoriaService auditoriaService;
+    private final UsuarioService usuarioService;
+    private final InscripcionService inscripcionService;
 
     @GetMapping("/estadisticas")
     @Operation(summary = "Obtener estadísticas globales del sistema")
@@ -63,5 +69,19 @@ public class AdminController {
     public ResponseEntity<ApiResponse<List<AuditoriaLog>>> logsPorAccion(@PathVariable String accion) {
         List<AuditoriaLog> logs = auditoriaService.obtenerLogsPorAccion(accion);
         return ResponseEntity.ok(ApiResponse.success(logs));
+    }
+
+    @GetMapping("/usuarios")
+    @Operation(summary = "Listar todos los usuarios")
+    public ResponseEntity<ApiResponse<List<UsuarioDTO>>> listarUsuarios() {
+        List<UsuarioDTO> usuarios = usuarioService.listarTodos();
+        return ResponseEntity.ok(ApiResponse.success(usuarios));
+    }
+
+    @GetMapping("/inscripciones")
+    @Operation(summary = "Listar todas las inscripciones")
+    public ResponseEntity<ApiResponse<List<InscripcionDTO>>> listarInscripciones() {
+        List<InscripcionDTO> inscripciones = inscripcionService.listarTodas();
+        return ResponseEntity.ok(ApiResponse.success(inscripciones));
     }
 }

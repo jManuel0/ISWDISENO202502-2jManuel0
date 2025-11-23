@@ -204,6 +204,12 @@ public class InscripcionService {
                 .collect(Collectors.toList());
     }
 
+    public List<InscripcionDTO> listarTodas() {
+        return inscripcionRepository.findAll().stream()
+                .map(this::convertirADTO)
+                .collect(Collectors.toList());
+    }
+
     private InscripcionDTO convertirADTO(Inscripcion inscripcion) {
         String usuarioNombre = null;
         String usuarioCorreo = null;
