@@ -126,12 +126,13 @@
         <div class="modal-content">
             <h3>Nueva Actividad</h3>
             <form id="activityForm">
-                <div class="form-group"><label>Nombre</label><input type="text" name="nombre" required></div>
-                <div class="form-group"><label>Descripcion</label><textarea name="descripcion" rows="3"></textarea></div>
-                <div class="form-group"><label>Categoria</label><select name="categoria"><option value="EDUCACION">Educacion</option><option value="SALUD">Salud</option><option value="MEDIO_AMBIENTE">Medio Ambiente</option><option value="SOCIAL">Social</option></select></div>
-                <div class="form-group"><label>Fecha Inicio</label><input type="datetime-local" name="fechaInicio" required></div>
-                <div class="form-group"><label>Ubicacion</label><input type="text" name="ubicacion"></div>
-                <div class="form-group"><label>Voluntarios Requeridos</label><input type="number" name="voluntariosRequeridos" min="1"></div>
+                <div class="form-group"><label>Titulo</label><input type="text" name="titulo" required></div>
+                <div class="form-group"><label>Descripcion</label><textarea name="descripcion" rows="3" required></textarea></div>
+                <div class="form-group"><label>Categoria</label><select name="categoriasActividad"><option value="EDUCACION">Educacion</option><option value="SALUD">Salud</option><option value="MEDIO_AMBIENTE">Medio Ambiente</option><option value="SOCIAL">Social</option></select></div>
+                <div class="form-group"><label>Fecha</label><input type="datetime-local" name="fecha" required></div>
+                <div class="form-group"><label>Lugar</label><input type="text" name="lugar" required></div>
+                <div class="form-group"><label>Cupos</label><input type="number" name="cupos" min="1" value="10" required></div>
+                <div class="form-group"><label>Horas de Voluntariado</label><input type="number" name="horasVoluntariado" min="1" value="4"></div>
                 <button type="submit" class="btn btn-primary" style="width:100%">Crear</button>
                 <button type="button" class="btn" style="width:100%;margin-top:0.5rem" onclick="closeModal('activityModal')">Cancelar</button>
             </form>
@@ -191,7 +192,7 @@
                 const res = await fetch(`${API_URL}/api/actividades`);
                 const result = await res.json();
                 if (result.success && result.data) {
-                    document.getElementById('actividadesTable').innerHTML = result.data.map(a => `<tr><td>${a.nombre}</td><td>${a.categoria || 'General'}</td><td>${a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '-'}</td><td>${a.voluntariosInscritos || 0}/${a.voluntariosRequeridos || '∞'}</td><td><button class="btn-icon btn-edit">✏️</button><button class="btn-icon btn-delete" onclick="deleteActivity('${a.id}')">🗑️</button></td></tr>`).join('');
+                    document.getElementById('actividadesTable').innerHTML = result.data.map(a => `<tr><td>${a.titulo || a.nombre || 'Sin titulo'}</td><td>${a.categoriasActividad?.[0] || a.categoria || 'General'}</td><td>${a.fecha ? new Date(a.fecha).toLocaleDateString() : (a.fechaInicio ? new Date(a.fechaInicio).toLocaleDateString() : '-')}</td><td>${a.inscritos || 0}/${a.cupos || '∞'}</td><td><button class="btn-icon btn-edit">✏️</button><button class="btn-icon btn-delete" onclick="deleteActivity('${a.id}')">🗑️</button></td></tr>`).join('');
                 }
             } catch (e) { console.error(e); }
         }
@@ -229,11 +230,34 @@
 
         document.getElementById('activityForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const data = Object.fromEntries(new FormData(e.target));
-            await fetch(`${API_URL}/api/actividades`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(data) });
-            closeModal('activityModal');
-            loadActividades();
-            e.target.reset();
+            const formData = new FormData(e.target);
+            const data = {
+                titulo: formData.get('titulo'),
+                descripcion: formData.get('descripcion'),
+                fecha: formData.get('fecha'),
+                lugar: formData.get('lugar'),
+                cupos: parseInt(formData.get('cupos')),
+                horasVoluntariado: parseInt(formData.get('horasVoluntariado') || 4),
+                categoriasActividad: [formData.get('categoriasActividad')]
+            };
+            try {
+                const res = await fetch(`${API_URL}/api/actividades`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    alert('Actividad creada exitosamente');
+                    closeModal('activityModal');
+                    loadActividades();
+                    e.target.reset();
+                } else {
+                    alert('Error: ' + (result.message || 'No se pudo crear la actividad'));
+                }
+            } catch (err) {
+                alert('Error de conexion');
+            }
         });
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
