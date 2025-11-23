@@ -62,6 +62,8 @@ public class AuthService {
                 .id(usuario.getId())
                 .nombre(usuario.getNombre())
                 .correo(usuario.getCorreo())
+                .telefono(usuario.getTelefono())
+                .habilidades(usuario.getHabilidades())
                 .rol(usuario.getRol())
                 .mensaje("Registro exitoso")
                 .build();
@@ -93,6 +95,8 @@ public class AuthService {
                 .id(usuario.getId())
                 .nombre(usuario.getNombre())
                 .correo(usuario.getCorreo())
+                .telefono(usuario.getTelefono())
+                .habilidades(usuario.getHabilidades())
                 .rol(usuario.getRol())
                 .mensaje("Login exitoso")
                 .build();
@@ -102,11 +106,35 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByCorreo(correo)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario", "correo", correo));
 
-        usuario.setTokenRecuperacion(UUID.randomUUID().toString());
-        usuario.setTokenRecuperacionExpira(LocalDateTime.now().plusHours(24));
+        // Generar código de 6 dígitos
+        String codigo = String.format("%06d", new java.util.Random().nextInt(1000000));
+        usuario.setTokenRecuperacion(codigo);
+        usuario.setTokenRecuperacionExpira(LocalDateTime.now().plusHours(1));
         usuarioRepository.save(usuario);
 
-        // TODO: Enviar email con enlace de recuperación
+        // TODO: Enviar email con código de recuperación
+        // Por ahora el código se guarda en la BD y se puede verificar
+    }
+
+    public String verificarCodigoRecuperacion(String correo, String codigo) {
+        Usuario usuario = usuarioRepository.findByCorreo(correo)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", "correo", correo));
+
+        if (usuario.getTokenRecuperacion() == null || !usuario.getTokenRecuperacion().equals(codigo)) {
+            throw new BadRequestException("Código de verificación inválido");
+        }
+
+        if (usuario.getTokenRecuperacionExpira().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("El código ha expirado");
+        }
+
+        // Generar token para restablecer password
+        String resetToken = UUID.randomUUID().toString();
+        usuario.setTokenRecuperacion(resetToken);
+        usuario.setTokenRecuperacionExpira(LocalDateTime.now().plusMinutes(30));
+        usuarioRepository.save(usuario);
+
+        return resetToken;
     }
 
     public void recuperarPassword(String token, String nuevaPassword) {
